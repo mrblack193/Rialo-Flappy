@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Game from './components/Game';
 import StartScreen from './components/StartScreen';
 import GameOverScreen from './components/GameOverScreen';
@@ -11,6 +11,41 @@ const App: React.FC = () => {
   const [highScore, setHighScore] = useState(() => {
     return parseInt(localStorage.getItem('highScore') || '0', 10);
   });
+  const gameAreaRef = useRef<HTMLDivElement>(null);
+
+  // This effect handles the scaling of the game area to fit the viewport
+  useEffect(() => {
+    const handleResize = () => {
+      const gameArea = gameAreaRef.current;
+      if (!gameArea) return;
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      // Calculate the best scale to fit the game in the screen while maintaining aspect ratio
+      const scale = Math.min(
+        screenWidth / GAME_WIDTH,
+        screenHeight / GAME_HEIGHT
+      );
+
+      // Apply the scale transform to the game area
+      gameArea.style.transform = `scale(${scale})`;
+    };
+
+    // Run on initial load
+    handleResize();
+
+    // Add event listeners for resize and orientation changes
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    // Cleanup listeners when component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
 
   const startGame = useCallback(() => {
     setScore(0);
@@ -40,10 +75,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-stone-900 text-white select-none">
+    // This outer container fills the screen and centers the game area
+    <div className="flex items-center justify-center w-screen h-screen bg-stone-900 text-white select-none overflow-hidden">
+      {/* This is the game area that will be scaled */}
       <div
+        ref={gameAreaRef}
         className="relative bg-stone-800 overflow-hidden border-4 border-stone-600 shadow-2xl shadow-cyan-500/20"
-        style={{ width: `${GAME_WIDTH}px`, height: `${GAME_HEIGHT}px` }}
+        style={{
+          width: `${GAME_WIDTH}px`,
+          height: `${GAME_HEIGHT}px`,
+        }}
       >
         <div 
           className="absolute inset-0 bg-repeat bg-center opacity-10"
