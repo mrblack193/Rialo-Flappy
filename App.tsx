@@ -40,7 +40,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-stone-900 text-white select-none">
+    <div className="flex items-center justify-center min-h-screen bg-stone-900 text-white select-none font-cinzel">
       <div
         className="relative bg-stone-800 overflow-hidden border-4 border-stone-600 shadow-2xl shadow-cyan-500/20"
         style={{ width: `${GAME_WIDTH}px`, height: `${GAME_HEIGHT}px` }}
